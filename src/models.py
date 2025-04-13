@@ -1,6 +1,4 @@
 from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy import Column, ForeignKey, Integer, String, DateTime, Table
-from sqlalchemy.orm import relationship
 from datetime import datetime
 
 db = SQLAlchemy()
@@ -14,11 +12,7 @@ class Usuario(db.Model):
     password = db.Column(db.String(80), nullable=False)
     fecha_subscripcion = db.Column(db.DateTime, default=datetime.utcnow)
     
-    # Relaciones
-    favoritos = db.relationship('Favorito', back_populates='usuario', cascade='all, delete-orphan')
-
-    def __repr__(self):
-        return f'<Usuario {self.email}>'
+    favoritos = db.relationship('Favorito', backref='usuario', lazy=True, cascade='all, delete-orphan')
 
     def serialize(self):
         return {
@@ -38,11 +32,7 @@ class Personaje(db.Model):
     afiliacion = db.Column(db.String(50))
     descripcion = db.Column(db.Text)
     
-    # Relaciones
-    favoritos = db.relationship('Favorito', back_populates='personaje', cascade='all, delete-orphan')
-
-    def __repr__(self):
-        return f'<Personaje {self.nombre}>'
+    favoritos = db.relationship('Favorito', backref='personaje', lazy=True, cascade='all, delete-orphan')
 
     def serialize(self):
         return {
@@ -63,11 +53,7 @@ class Planeta(db.Model):
     poblacion = db.Column(db.Integer)
     descripcion = db.Column(db.Text)
     
-    # Relaciones
-    favoritos = db.relationship('Favorito', back_populates='planeta', cascade='all, delete-orphan')
-
-    def __repr__(self):
-        return f'<Planeta {self.nombre}>'
+    favoritos = db.relationship('Favorito', backref='planeta', lazy=True, cascade='all, delete-orphan')
 
     def serialize(self):
         return {
@@ -86,14 +72,6 @@ class Favorito(db.Model):
     personaje_id = db.Column(db.Integer, db.ForeignKey('personaje.id'), nullable=True)
     planeta_id = db.Column(db.Integer, db.ForeignKey('planeta.id'), nullable=True)
     fecha_agregado = db.Column(db.DateTime, default=datetime.utcnow)
-    
-    # Relaciones
-    usuario = db.relationship('Usuario', back_populates='favoritos')
-    personaje = db.relationship('Personaje', back_populates='favoritos')
-    planeta = db.relationship('Planeta', back_populates='favoritos')
-
-    def __repr__(self):
-        return f'<Favorito {self.id}>'
 
     def serialize(self):
         return {
